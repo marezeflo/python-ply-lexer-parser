@@ -1,0 +1,46 @@
+<
+<=
+>
+>=
+=
+<>
+,
+;
+:
++
+-
+/
+*
+:=
+()
+"cadena con espacios"
+/** esto es 
+un encabezado */
+/* comentario 
+de varias lIneas */
+//   coment una lInea
+
+@otro 	comment una línea
+"cadena # $ % con varias cosas locas 24 -234 "
+
+3577
+id_2
+
+numero
+entero
+cadena
+:numero
+:entero
+:cadena
+
+	"cadena con tab"
+
+
+"la ñ no reconoce"
+//la ñ no reconoce
+"áRBOL CON TILDE"
+/** Una canción 
+de encabezado */
+
+otroIDAÑO
+

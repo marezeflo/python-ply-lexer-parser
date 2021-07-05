@@ -1,0 +1,1134 @@
+import ply.yacc as yacc
+
+import os
+import re
+import codecs
+
+from tkinter.filedialog import  askopenfilename
+import time
+
+from lexer import lexing, tokens
+
+precedence = (
+  ('left','COMENTARIO_BLOQUE','COMENTARIO_LINEA','COMENTARIO_ENCABEZADO')
+  ('right','COMA'),
+  ('right','HACER','ENTONCES','PUNTO_Y_COMA'),
+  ('right','IDENTIFICADOR','PROCESO','AMBIENTE','SI','MIENTRAS','REPETIR','PARA','HASTA'),
+  ('right','CONJUNCION','DISYUNCION'),
+  ('right','ASIGNACION'),
+  ('right','IGUAL'),
+  ('left','DISTINTO'),
+  ('left','MENOR','MENOR_IGUAL','MAYOR','MAYOR_IGUAL'),
+  ('left','SUMA','RESTA'),
+  ('left','MULTIPLICACION','DIVISION','DIVISION_ENTERA'),
+  ('right','MODULO','POTENCIA'),
+  ('left','PARENTESIS_IZQUIERDA','PARENTESIS_DERECHA'),
+)
+
+# https://docs.google.com/document/d/1lprNCmoiR7_feu5g-xZ-OLEJWR81U9Q2KG25eiajNp0/edit?usp=sharing
+
+def p_sigma(p):
+  '''
+    sigma : program
+  '''
+  print ("<sigma>")
+  print ("\n Código sintácticamente correcto.\n")
+
+def p_program(p):
+  '''
+  program : program1
+          | program2
+          | program3
+          | program4
+  '''
+  print ("<program>")
+
+def p_program1(p):
+  '''
+  program1  : ACCION IDENTIFICADOR ES environment process FIN_ACCION
+  '''
+  print ("<program1>")
+
+def p_program2(p):
+  '''
+  program2  : comment ACCION IDENTIFICADOR ES environment process FIN_ACCION
+  '''
+  print ("<program2>")
+
+def p_program3(p):
+  '''
+  program3  : ACCION IDENTIFICADOR ES process FIN_ACCION
+  ''' 
+  print ("<program3>")
+
+def p_program4(p):
+  '''
+  program4  : comment ACCION IDENTIFICADOR ES process FIN_ACCION
+  '''
+  print ("<program4>")
+
+def p_process(p):
+  '''
+  process : process1
+          | process2
+  '''
+  print ("<process>")
+
+def p_process1(p):
+  '''
+  process1 : PROCESO sentence
+  '''
+  print ("<process1>")
+
+def p_process2(p):
+  '''
+  process2 : PROCESO 
+  '''
+  print ("<process2>")
+
+def p_comment(p):
+  '''
+  comment : comment1
+          | comment2
+          | comment3
+  '''
+  print ("<comment>")
+
+def p_comment1(p):
+  '''
+  comment1 : COMENTARIO_ENCABEZADO
+  '''
+  print ("<comment1>")
+
+def p_comment2(p):
+  '''
+  comment2  : COMENTARIO_BLOQUE
+  '''
+  print ("<comment2>")
+
+def p_comment3(p):
+  '''
+  comment3  : COMENTARIO_LINEA
+  '''
+  print ("<comment3>")
+
+def p_environment(p):
+  '''
+  environment : environment1
+              | environment2
+  '''
+  print("<environment>")
+
+def p_environment1(p):
+  '''
+  environment1 : AMBIENTE environmentsentence
+  '''
+  print("<environment1>")
+
+def p_environment2(p):
+  '''
+    environment2 : AMBIENTE
+  '''
+  print ("<environment2>")
+
+def p_environmentsentence(p):
+  '''
+  environmentsentence : environmentsentence1 
+                      | environmentsentence2 
+                      | environmentsentence3 
+                      | environmentsentence4 
+                      | environmentsentence5 
+                      | environmentsentence6 
+                      | environmentsentence7 
+                      | environmentsentence8 
+                      | environmentsentence9 
+                      | environmentsentence10
+                      | environmentsentence11
+                      | environmentsentence12
+                      | environmentsentence13
+                      | environmentsentence14
+                      | environmentsentence15
+                      | environmentsentence16
+                      | environmentsentence17
+                      | environmentsentence18
+                      | environmentsentence19
+                      | environmentsentence20
+                      | environmentsentence21
+                      | environmentsentence22
+                      | environmentsentence23
+                      | environmentsentence24
+                      | environmentsentence25
+                      | environmentsentence26
+                      | environmentsentence27
+                      | environmentsentence28
+  '''
+
+def p_environmentsentence1(p):
+  '''
+  environmentsentence1 : IDENTIFICADOR DOS_PUNTOS type PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence1>")
+    
+def p_environmentsentence2(p):
+  '''
+  environmentsentence2 : comment IDENTIFICADOR DOS_PUNTOS type PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence2>")
+
+def p_environmentsentence3(p):
+  '''
+  environmentsentence3 : IDENTIFICADOR DOS_PUNTOS type PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence3>")
+    
+def p_environmentsentence4(p):
+  '''
+  environmentsentence4 : comment IDENTIFICADOR DOS_PUNTOS type PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence4>")
+    
+def p_environmentsentence5(p):
+  '''
+  environmentsentence5 : IDENTIFICADOR IGUAL CADENA PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence5>")
+    
+def p_environmentsentence6(p):
+  '''
+  environmentsentence6 : comment IDENTIFICADOR IGUAL CADENA PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence6>")
+    
+def p_environmentsentence7(p):
+  '''
+  environmentsentence7 : IDENTIFICADOR IGUAL DATO PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence7>")
+    
+def p_environmentsentence8(p):
+  '''
+  environmentsentence8 : comment IDENTIFICADOR IGUAL DATO PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence8>")
+    
+def p_environmentsentence9(p):
+  '''
+  environmentsentence9 : IDENTIFICADOR IGUAL CADENA PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence9>")
+    
+def p_environmentsentence10(p):
+  '''
+  environmentsentence10 : comment IDENTIFICADOR IGUAL CADENA PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence10>")
+    
+def p_environmentsentence11(p):
+  '''
+  environmentsentence11 : IDENTIFICADOR IGUAL DATO PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence11>")
+    
+def p_environmentsentence12(p):
+  '''
+  environmentsentence12 : comment IDENTIFICADOR IGUAL DATO PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence12>")
+    
+def p_environmentsentence13(p):
+  '''
+  environmentsentence13 : IDENTIFICADOR IGUAL NUMERO_ENTERO PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence13>")
+    
+def p_environmentsentence14(p):
+  '''
+  environmentsentence14 : comment IDENTIFICADOR IGUAL NUMERO_ENTERO PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence14>")
+    
+def p_environmentsentence15(p):
+  '''
+  environmentsentence15 : IDENTIFICADOR IGUAL NUMERO_ENTERO PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence15>")
+    
+def p_environmentsentence16(p):
+  '''
+  environmentsentence16 : comment IDENTIFICADOR IGUAL NUMERO_ENTERO PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence16>")
+    
+def p_environmentsentence17(p):
+  '''
+  environmentsentence17 : IDENTIFICADOR IGUAL NUMERO_REAL PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence17>")
+    
+def p_environmentsentence18(p):
+  '''
+  environmentsentence18 : comment IDENTIFICADOR IGUAL NUMERO_REAL PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence18>")
+    
+def p_environmentsentence19(p):
+  '''
+  environmentsentence19 : IDENTIFICADOR IGUAL NUMERO_REAL PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence19>")
+    
+def p_environmentsentence20(p):
+  '''
+  environmentsentence20 : comment IDENTIFICADOR IGUAL NUMERO_REAL PUNTO_Y_COMA                        
+  '''
+  print ("<environmentsentence20>")
+    
+def p_environmentsentence21(p):
+  '''
+  environmentsentence21 : function PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence21>")
+    
+def p_environmentsentence22(p):
+  '''
+  environmentsentence22 : comment function PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence22>")
+    
+def p_environmentsentence23(p):
+  '''
+  environmentsentence23 : function PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence23>")
+    
+def p_environmentsentence24(p):
+  '''
+  environmentsentence24 : comment function PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence24>")
+    
+def p_environmentsentence25(p):
+  '''
+  environmentsentence25 : procedure PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence25>")
+    
+def p_environmentsentence26(p):
+  '''
+  environmentsentence26 : comment procedure PUNTO_Y_COMA environmentsentence
+  '''
+  print ("<environmentsentence26>")
+    
+def p_environmentsentence27(p):
+  '''
+  environmentsentence27 : procedure PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence27>")
+    
+def p_environmentsentence28(p):
+  '''
+  environmentsentence28 : comment procedure PUNTO_Y_COMA
+  '''
+  print ("<environmentsentence28>")
+
+def p_type(p):
+  '''
+  type  : DATO
+  '''
+  print ("<type>")
+
+def p_function(p):
+  '''
+  function  : function1
+            | function2
+  '''
+  print("<function>")
+
+def p_function1(p):
+  '''
+  function1 : FUNCION IDENTIFICADOR PARENTESIS_IZQUIERDA argument PARENTESIS_DERECHA DOS_PUNTOS type ES environment process FIN_FUNCION PUNTO_Y_COMA
+  '''
+  print ("<function1>")
+
+def p_function2(p):
+  '''
+  function2 : FUNCION IDENTIFICADOR PARENTESIS_IZQUIERDA argument PARENTESIS_DERECHA DOS_PUNTOS type ES process FIN_FUNCION PUNTO_Y_COMA
+  '''
+  print ("<function2>")
+
+def p_procedure(p):
+  '''
+  procedure : procedure1
+            | procedure2
+  '''
+  print ("<procedure>")
+
+def p_procedure1(p):
+  '''
+  procedure1 : PROCEDIMIENTO PARENTESIS_IZQUIERDA argument PARENTESIS_DERECHA ES environment process FIN_PROCEDIMIENTO PUNTO_Y_COMA
+  '''
+  print ("<procedure1>")
+
+def p_procedure2(p):
+  '''
+  procedure2 : PROCEDIMIENTO PARENTESIS_IZQUIERDA argument PARENTESIS_DERECHA ES process FIN_PROCEDIMIENTO PUNTO_Y_COMA
+  '''
+  print ("<procedure2>")
+
+def p_sentence(p):
+  '''
+  sentence  : sentence1 
+            | sentence2
+            | sentence3
+            | sentence4
+            | sentence5
+            | sentence6
+            | sentence7
+            | sentence8
+            | sentence9
+            | sentence10
+            | sentence11
+            | sentence12
+            | sentence13
+            | sentence14
+            | sentence15
+            | sentence16
+            | sentence17
+            | sentence18
+            | sentence19
+            | sentence20
+            | sentence21
+            | sentence22
+            | sentence23
+            | sentence24
+            | sentence25
+            | sentence26
+            | sentence27
+            | sentence28
+            | sentence29
+            | sentence30
+            | sentence31
+            | sentence32
+  '''
+def p_sentence1(p):
+  '''
+  sentence1 : write PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence1>")
+
+def p_sentence2(p):
+  '''
+  sentence2 : comment write PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence2>")
+
+def p_sentence3(p):
+  '''
+  sentence3 : write PUNTO_Y_COMA
+  '''
+  print ("<sentence3>")
+
+def p_sentence4(p):
+  '''
+  sentence4 : comment write PUNTO_Y_COMA
+  '''
+  print ("<sentence4>")
+
+def p_sentence5(p):
+  '''
+  sentence5 : read PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence5>")
+
+def p_sentence6(p):
+  '''
+  sentence6 : comment read PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence6>")
+
+def p_sentence7(p):
+  '''
+  sentence7 : read PUNTO_Y_COMA
+  '''
+  print ("<sentence7>")
+
+def p_sentence8(p):
+  '''
+  sentence8 : comment read PUNTO_Y_COMA
+  '''
+  print ("<sentence8>")
+
+def p_sentence9(p):
+  '''
+  sentence9 : while PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence9>")
+
+def p_sentence10(p):
+  '''
+  sentence10 : comment while PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence10>")
+
+def p_sentence11(p):
+  '''
+  sentence11 : while PUNTO_Y_COMA
+  '''
+  print ("<sentence11>")
+
+def p_sentence12(p):
+  '''
+  sentence12 : comment while PUNTO_Y_COMA
+  '''
+  print ("<sentence12>")
+
+def p_sentence13(p):
+  '''
+  sentence13 : for PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence13>")
+
+def p_sentence14(p):
+  '''
+  sentence14 : comment for PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence14>")
+
+def p_sentence15(p):
+  '''
+  sentence15 : for PUNTO_Y_COMA
+  '''
+  print ("<sentence15>")
+
+def p_sentence16(p):
+  '''
+  sentence16 : comment for PUNTO_Y_COMA
+  '''
+  print ("<sentence16>")
+
+def p_sentence17(p):
+  '''
+  sentence17 : if PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence17>")
+
+def p_sentence18(p):
+  '''
+  sentence18 : comment if PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence18>")
+
+def p_sentence19(p):
+  '''
+  sentence19 : if PUNTO_Y_COMA
+  '''
+  print ("<sentence19>")
+
+def p_sentence20(p):
+  '''
+  sentence20 : comment if PUNTO_Y_COMA
+  '''
+  print ("<sentence20>")
+
+def p_sentence21(p):
+  '''
+  sentence21 : case PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence21>")
+
+def p_sentence22(p):
+  '''
+  sentence22 : comment case PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence22>")
+
+def p_sentence23(p):
+  '''
+  sentence23 : case PUNTO_Y_COMA
+  '''
+  print ("<sentence23>")
+
+def p_sentence24(p):
+  '''
+  sentence24 : comment case PUNTO_Y_COMA
+  '''
+  print ("<sentence24>")
+
+def p_sentence25(p):
+  '''
+  sentence25 : repeat PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence25>")
+
+def p_sentence26(p):
+  '''
+  sentence26 : comment repeat PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence26>")
+
+def p_sentence27(p):
+  '''
+  sentence27 : repeat PUNTO_Y_COMA
+  '''
+  print ("<sentence27>")
+
+def p_sentence28(p):
+  '''
+  sentence28 : comment repeat PUNTO_Y_COMA
+  '''
+  print ("<sentence28>")
+
+def p_sentence29(p):
+  '''
+  sentence29 : assign PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence29>")
+
+def p_sentence30(p):
+  '''
+  sentence30 : comment assign PUNTO_Y_COMA sentence
+  '''
+  print ("<sentence30>")
+
+def p_sentence31(p):
+  '''
+  sentence31 : assign PUNTO_Y_COMA
+  '''
+  print ("<sentence31>")
+
+def p_sentence32(p):
+  '''
+  sentence32 : comment assign PUNTO_Y_COMA
+  '''
+  print ("<sentence32>")
+
+def p_write(p):
+  '''
+  write : ESCRIBIR PARENTESIS_IZQUIERDA string PARENTESIS_DERECHA PUNTO_Y_COMA
+
+  '''
+  print ("<write>")
+
+def p_read(p):
+  '''
+  read  : LEER PARENTESIS_IZQUIERDA var PARENTESIS_DERECHA 
+
+  '''
+  print ("<read>")
+
+def p_while(p):
+  '''
+  while : MIENTRAS condition HACER sentence FIN_MIENTRAS
+
+  '''
+  print ("<while>")
+
+def p_for(p):
+  '''
+  for : for1
+      | for2
+  '''
+  print ("<for>")
+
+def p_for1(p):
+  '''
+  for1 : PARA PARENTESIS_IZQUIERDA IDENTIFICADOR ASIGNACION NUMERO_ENTERO PARENTESIS_DERECHA HASTA NUMERO_ENTERO COMA IDENTIFICADOR ASIGNACION IDENTIFICADOR SUMA NUMERO_ENTERO HACER sentence FIN_PARA
+  '''
+  print ("<for1>")
+
+def p_for2(p):
+  '''
+  for2 : PARA PARENTESIS_IZQUIERDA IDENTIFICADOR ASIGNACION NUMERO_ENTERO PARENTESIS_DERECHA HASTA NUMERO_ENTERO HACER sentence FIN_PARA
+  '''
+  print ("<for2>")
+
+def p_if(p):
+  '''
+  if  : if1
+      | if2
+  '''
+  print ("<if>")
+
+def p_if1(p):
+  '''
+  if1 : SI condition ENTONCES sentence FIN_SI
+  '''
+  print ("<if1>")
+
+def p_if2(p):
+  '''
+  if2  : SI condition ENTONCES sentence SINO sentence FIN_SI
+  '''
+  print ("<if2>")
+
+def p_case(p):
+  '''
+  case  : SEGUN PARENTESIS_IZQUIERDA IDENTIFICADOR PARENTESIS_DERECHA HACER casesentence FIN_SEGUN
+  '''
+  print ("<case>")
+
+def p_casesentence(p):
+  '''
+  casesentence  : casesentence1
+                | casesentence2
+                | casesentence3
+                | casesentence4
+                | casesentence5
+                | casesentence6
+                | casesentence7
+                | casesentence8
+                | casesentence9
+  '''
+  print ("<casesentence>")
+
+def p_casentence1(p):
+  '''
+  casesentence1 : IGUAL NUMERO_ENTERO DOS_PUNTOS sentence PUNTO_Y_COMA casesentence
+  '''
+  print ("<casesentence1>")
+
+def p_casentence2(p):
+  '''
+  casesentence2 : IGUAL NUMERO_ENTERO DOS_PUNTOS sentence PUNTO_Y_COMA
+  '''
+  print ("<casesentence2>")
+
+def p_casentence3(p):
+  '''
+  casesentence3 : IGUAL NUMERO_ENTERO DOS_PUNTOS sentence PUNTO_Y_COMA default
+  '''
+  print ("<casesentence3>")
+
+def p_casentence4(p):
+  '''
+  casesentence4 : IGUAL NUMERO_REAL DOS_PUNTOS sentence PUNTO_Y_COMA casesentence
+  '''
+  print ("<casesentence4>")
+
+def p_casentence5(p):
+  '''
+  casesentence5 : IGUAL NUMERO_REAL DOS_PUNTOS sentence PUNTO_Y_COMA 
+  '''
+  print ("<casesentence5>")
+
+def p_casentence6(p):
+  '''
+  casesentence6 : IGUAL NUMERO_REAL DOS_PUNTOS sentence PUNTO_Y_COMA default
+  '''
+  print ("<casesentence6>")
+
+def p_casentence7(p):
+  '''
+  casesentence7 : IGUAL IDENTIFICADOR DOS_PUNTOS sentence PUNTO_Y_COMA casesentence
+  '''
+  print ("<casesentence7>")
+
+def p_casentence8(p):
+  '''
+  casesentence8 : IGUAL IDENTIFICADOR DOS_PUNTOS sentence PUNTO_Y_COMA
+  '''
+  print ("<casesentence8>")
+
+def p_casentence9(p):
+  '''
+  casesentence9 : IGUAL IDENTIFICADOR DOS_PUNTOS sentence PUNTO_Y_COMA default
+  '''
+  print ("<casesentence9>")
+
+
+def p_default(p):
+  '''
+  default : SEGUN_DEFECTO DOS_PUNTOS sentence PUNTO_Y_COMA
+  '''
+  print ("<default>")
+
+def p_repeat(p):
+  '''
+  repeat  : REPETIR sentence HASTA_QUE condition
+  '''
+  print ("<repeat>")
+
+def p_assign(p):
+  '''
+  assign  : assign1
+          | assign2
+  '''
+  print ("<assign>")
+
+def p_assign1(p):
+  '''
+  assign1 : IDENTIFICADOR ASIGNACION operation
+  '''
+  print("<assign1>")
+
+def p_assign2(p):
+  '''
+  assign2 : IDENTIFICADOR ASIGNACION CADENA
+  '''
+  print("<assign2>")
+
+
+def p_operation(p):
+  '''
+  operation : operation1
+            | operation2
+            | operation3
+            | operation4
+  '''
+  print ("<operation>")
+  
+def p_operation1(p):
+  '''
+  operation1 : PARENTESIS_IZQUIERDA operation PARENTESIS_DERECHA
+  '''
+  print("<operation1>")
+
+def p_operation2(p):
+  '''
+  operation2 : operated aop operated aop operation
+  '''
+  print("<operation2>")
+
+def p_operation3(p):
+  '''
+  operation3 : operated aop operated
+  '''
+  print("<operation3>")
+
+def p_operation4(p):
+  '''
+  operation4 : operated
+  '''
+  print("<operation4>")
+
+def p_operated(p):
+  '''
+  operated  : operated1
+            | operated2
+            | operated3
+  '''
+  print ("<operated>")
+
+def p_operated1(p):
+  '''
+  operated1 : IDENTIFICADOR
+  '''
+  print("<operated1>")
+
+def p_operated2(p):
+  '''
+  operated2 : NUMERO_REAL
+  '''
+  print("<operated2>")
+
+def p_operated3(p):
+  '''
+  operated3 : NUMERO_ENTERO
+  '''
+  print("<operated3>")
+
+def p_argument(p):
+  '''
+  argument  : argument1
+            | argument2
+  '''
+  print ("<argument>")
+
+def p_arguement1(p):
+  '''
+  argument1 : IDENTIFICADOR DOS_PUNTOS type COMA argument
+  '''
+  print("<argument1>")
+
+def p_arguement2(p):
+  '''
+  argument2 : IDENTIFICADOR DOS_PUNTOS type
+  '''
+  print("<argument2>")
+
+def p_string(p):
+  '''
+  string  : string1
+          | string2
+          | string3
+          | string4
+  '''
+  print ("<string>")
+
+def p_string1(p):
+  '''
+  string1 : var COMA string
+  '''
+  print("<string1>")
+
+def p_string2(p):
+  '''
+  string2 : var
+  '''
+  print("<string2>")
+
+def p_string3(p):
+  '''
+  string3 : CADENA COMA string
+  '''
+  print("<string3>")
+
+def p_string4(p):
+  '''
+  string4 : CADENA
+  '''
+  print("<string4>")
+
+def p_var(p):
+  '''
+  var : var1
+      | var2
+  '''
+  print ("<var>")
+
+def p_var1(p):
+  '''
+  var1 : IDENTIFICADOR COMA var
+  '''
+  print("<var1>")
+
+def p_var2(p):
+  '''
+  var2 : IDENTIFICADOR
+  '''
+  print("<var2>")
+  
+
+def p_condition(p):
+  '''
+  condition : condition1
+            | condition2
+            | condition3
+            | condition4
+            | condition5
+            | condition6
+            | condition7
+            | condition8
+            | condition9
+  '''
+  print ("<condition>")
+
+def p_condition1(p):
+  '''
+  condition1  : PARENTESIS_IZQUIERDA IDENTIFICADOR rop IDENTIFICADOR PARENTESIS_DERECHA 
+  '''
+  print("<condition1>")
+
+def p_condition2(p):
+  '''
+  condition2  : NEGACION PARENTESIS_IZQUIERDA IDENTIFICADOR rop IDENTIFICADOR PARENTESIS_DERECHA 
+  '''
+  print("<condition2>")
+
+def p_condition3(p):
+  '''
+  condition3  : PARENTESIS_IZQUIERDA CADENA rop CADENA PARENTESIS_DERECHA 
+  '''
+  print("<condition3>")
+
+def p_condition4(p):
+  '''
+  condition4  : NEGACION PARENTESIS_IZQUIERDA CADENA rop CADENA PARENTESIS_DERECHA 
+  '''
+  print("<condition4>")
+
+def p_condition5(p):
+  '''
+  condition5  : PARENTESIS_IZQUIERDA NUMERO_ENTERO rop NUMERO_ENTERO PARENTESIS_DERECHA 
+  '''
+  print("<condition5>")
+
+def p_condition6(p):
+  '''
+  condition6  : NEGACION PARENTESIS_IZQUIERDA NUMERO_ENTERO rop NUMERO_ENTERO PARENTESIS_DERECHA 
+  '''
+  print("<condition6>")
+
+def p_condition7(p):
+  '''
+  condition7  : PARENTESIS_IZQUIERDA NUMERO_REAL rop NUMERO_REAL PARENTESIS_DERECHA 
+  '''
+  print("<condition7>")
+
+def p_condition8(p):
+  '''
+  condition8  : NEGACION PARENTESIS_IZQUIERDA NUMERO_REAL rop NUMERO_REAL PARENTESIS_DERECHA 
+  '''
+  print("<condition8>")
+
+def p_condition9(p):
+  '''
+  condition9  : condition lop condition
+  '''
+  print("<condition9>")
+
+def p_aop(p):
+  '''
+  aop : aop1
+      | aop2
+      | aop3
+      | aop4
+      | aop5
+      | aop6
+      | aop7
+  '''
+  print ("<aop>")
+
+def p_aop1(p):
+  '''
+  aop1  : SUMA
+  '''
+  print("<aop1>")
+
+def p_aop2(p):
+  '''
+  aop2  : RESTA
+  '''
+  print("<aop2>")
+
+def p_aop3(p):
+  '''
+  aop3  : MULTIPLICACION
+  '''
+  print("<aop3>")
+
+def p_aop4(p):
+  '''
+  aop4  : DIVISION
+  '''
+  print("<aop>4")
+
+def p_aop5(p):
+  '''
+  aop5  : MODULO
+  '''
+  print("<aop5>")
+
+def p_aop6(p):
+  '''
+  aop6  : DIVISION_ENTERA
+  '''
+  print("<aop6>")
+
+def p_aop7(p):
+  '''
+  aop7  : POTENCIA
+  '''
+  print("<aop7>")
+
+def p_lop(p):
+  '''
+  lop : lop1
+      | lop2
+  '''
+  print ("<lop>")
+
+def p_lop1(p):
+  '''
+  lop1  : CONJUNCION
+  '''
+  print("<lop1>")
+
+def p_lop2(p):
+  '''
+  lop2  : DISYUNCION
+  '''
+  print("<lop2>")
+
+def p_rop(p):
+  '''
+  rop : rop1
+      | rop2
+      | rop3
+      | rop4
+      | rop5
+      | rop6
+  '''
+  print ("<rop>")
+
+def p_rop1(p):
+  '''
+  rop1 : IGUAL
+  '''
+  print("<rop1>")
+
+def p_rop2(p):
+  '''
+  rop2 : MAYOR
+  '''
+  print("<rop2>")
+
+def p_rop3(p):
+  '''
+  rop3 : MENOR
+  '''
+  print("<rop3>")
+
+def p_rop4(p):
+  '''
+  rop4 : MAYOR_IGUAL
+  '''
+  print("<rop4>")
+
+def p_rop5(p):
+  '''
+  rop5 : MENOR_IGUAL
+  '''
+  print("<rop5>")
+
+def p_rop6(p):
+  '''
+  rop6 : DISTINTO
+  '''
+  print("<rop6>")
+
+def p_error(p):
+  print ("\nError de sintaxis en la producción: ",p)
+  print ("El error se ubica en la línea N ",p.lineno,"\n")
+
+parser = yacc.yacc('SLR')
+
+rta = 0
+
+while (rta != 1 and rta != 2):
+      
+  rta = int(input("\n¿Qué desea analizar?\n\n\t1 - Archivo\n\n\t2 - Pseudocódigo ingresado por pantalla\n\nOpción: "))
+  print("\n")
+  if (rta == 2):
+    print ("\nEscriba el pseudocódigo a continuación, por favor: \n")
+    pseudocodigo = ""
+    i = 1
+    while True:
+      data = input('{} '.format(i))
+      pseudocodigo = pseudocodigo + data + '\n'
+      if (data == "FIN_ACCION" or data == "fin_accion"):
+        break
+      i += 1
+    #pruebalexer = lexing(pseudocodigo)
+    result = parser.parse(pseudocodigo)
+  else:
+    if (rta == 1):
+      archivo=askopenfilename(title="Seleccione un archivo, por favor:", filetype=[("txt file",".txt")])
+      nombre_arch=os.path.basename(archivo).replace('.txt','')
+      test = codecs.open(archivo,'r','utf-8')
+      pseudocodigo = test.read()
+      pseudocodigo = re.sub(r"\r","",pseudocodigo)
+      test.close()
+      #pruebalexer = lexing(pseudocodigo)
+      result = parser.parse(pseudocodigo)
+    else:
+      print ('\nOpción inválida, reiniciando...\n')
+
+if (result!=None):
+  print (result)
+else:
+  print ("Programa sintácticamente incorrecto.")
+
+end = str(input("\nPresione enter para finalizar."))
+print ('\nGracias por usar nuestro parser :)\n')
+time.sleep(2)
